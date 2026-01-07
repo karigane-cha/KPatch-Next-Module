@@ -64,17 +64,16 @@ function updateBtnState(value) {
     document.getElementById('start').disabled = !value;
 }
 
-export function initInfo() {
-    return exec('uname -r && getprop ro.build.version.release && getprop ro.build.fingerprint && getenforce').then((result) => {
-        if (import.meta.env.DEV) { // vite debug
-            result.stdout = '6.18.2-linux\n16\nLinuxPC\nEnforcing'
-        }
-        const info = result.stdout.trim().split('\n');
-        document.getElementById('kernel-release').textContent = info[0];
-        document.getElementById('system').textContent = info[1];
-        document.getElementById('fingerprint').textContent = info[2];
-        document.getElementById('selinux').textContent = info[3];
-    });
+export async function initInfo() {
+    const result = await exec('uname -r && getprop ro.build.version.release && getprop ro.build.fingerprint && getenforce');
+    if (import.meta.env.DEV) { // vite debug
+        result.stdout = '6.18.2-linux\n16\nLinuxPC\nEnforcing';
+    }
+    const info = result.stdout.trim().split('\n');
+    document.getElementById('kernel-release').textContent = info[0];
+    document.getElementById('system').textContent = info[1];
+    document.getElementById('fingerprint').textContent = info[2];
+    document.getElementById('selinux').textContent = info[3];
 }
 
 async function reboot(reason = "") {

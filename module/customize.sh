@@ -10,3 +10,6 @@ mkdir -p /data/adb/kp-next
 if [ -f "/data/adb/ap/package_config" ] && [ ! -f "/data/adb/kp-next/package_config" ]; then
     cp "/data/adb/ap/package_config" /data/adb/kp-next/package_config
 fi
+
+# backup module.prop
+cp "$MODPATH/module.prop" "$MODPATH/module.prop.bak"

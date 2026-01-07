@@ -1,12 +1,12 @@
 #!/bin/sh
 
-MODDIR=${0%/*}
+MODDIR="/data/adb/modules/KPatch-Next"
 KPNDIR="/data/adb/kp-next"
 PATH="$MODDIR/bin:$PATH"
 key="$1"
 
 PROP_FILE="$MODDIR/module.prop"
-PROP_BAK="$MODDIR/module.prop.bak"
+PROP_BAK="$PROP_FILE.bak"
 
 set_prop() {
     local prop="$1"
@@ -23,12 +23,15 @@ set_prop() {
 }
 
 restore_prop_if_needed() {
-    if ! grep -q "^id=" "$PROP_FILE"; then
-        if [ -f "$PROP_BAK" ]; then
-            cp "$PROP_BAK" "$PROP_FILE"
-        fi
-    fi
+    grep -q "^id=" "$PROP_FILE" && return
+    [ -f "$PROP_BAK" ] && cat "$PROP_BAK" > "$PROP_FILE"
 }
+
+# self cleanup if module removed improperly
+if [ ! -d "$MODDIR" ]; then
+    rm -f "$(realpath "$0")"
+    exit 0
+fi
 
 active="Status: active 😊"
 inactive="Status: inactive 😕"
