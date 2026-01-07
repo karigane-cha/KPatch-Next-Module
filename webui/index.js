@@ -1,5 +1,5 @@
 import '@material/web/all.js';
-import { exec } from 'kernelsu-alt';
+import { exec, toast } from 'kernelsu-alt';
 import { setupRoute, navigateToHome } from './route.js';
 import * as patchModule from './page/patch.js';
 import * as kpmModule from './page/kpm.js';
@@ -96,6 +96,19 @@ function getMaxChunkSize() {
     });
 }
 
+export function linkRedirect(link) {
+    toast("Redirecting to " + link);
+    setTimeout(() => {
+        exec(`am start -a android.intent.action.VIEW -d ${link}`)
+            .then(({ errno }) => {
+                if (errno !== 0) {
+                    toast("Failed to open link with exec");
+                    window.open(link, "_blank");
+                }
+            });
+    }, 100);
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     document.querySelectorAll('[unresolved]').forEach(el => el.removeAttribute('unresolved'));
     const splash = document.getElementById('splash');
@@ -169,17 +182,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
     document.getElementById('reboot-fab').onclick = () => reboot();
-
-    // Kpm
-    const controlDialog = document.getElementById('control-dialog');
-    const controlTextField = controlDialog.querySelector('md-outlined-text-field');
-    controlTextField.addEventListener('input', () => {
-        controlDialog.querySelector('.confirm').disabled = !controlTextField.value;
-    });
-    document.getElementById('load').onclick = () => {
-        kpmModule.uploadAndLoadModule();
-        kpmModule.refreshKpmList();
-    }
 
     updateBtnState(superkey);
     getMaxChunkSize();

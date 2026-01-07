@@ -1,8 +1,10 @@
 import { exec, spawn, toast } from 'kernelsu-alt';
-import { modDir, persistDir, superkey, initInfo, MAX_CHUNK_SIZE } from '../index.js';
+import { modDir, persistDir, superkey, initInfo, MAX_CHUNK_SIZE, linkRedirect } from '../index.js';
 
 let allKpms = [];
 let searchQuery = '';
+let clickCount = 0;
+let lastClickTime = 0;
 
 async function getKpmInfo(path) {
     const result = await exec(`kptools -l -M "${path}"`, { env: { PATH: `${modDir}/bin` } });
@@ -255,7 +257,20 @@ async function uploadFile(file, targetPath, onProgress, signal) {
     }
 }
 
+function checkFileUploadApi() {
+    // If we reach here 3 times in 2 seconds, upload api is likely available
+    const currentTime = Date.now();
+    clickCount = (currentTime - lastClickTime > 2000) ? 1 : clickCount + 1;
+    lastClickTime = currentTime;
+
+    if (clickCount === 3) {
+        clickCount = 0;
+        linkRedirect('https://github.com/KOWX712/KsuWebUIStandalone/releases/latest');
+    }
+}
+
 async function handleFileUpload(accept, containerId, onSelected) {
+    checkFileUploadApi();
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = accept;
@@ -404,6 +419,14 @@ export function initKPMPage() {
         kpmItemMap.clear();
         refreshKpmList();
     };
+
+    const controlDialog = document.getElementById('control-dialog');
+    const controlTextField = controlDialog.querySelector('md-outlined-text-field');
+    controlTextField.addEventListener('input', () => {
+        controlDialog.querySelector('.confirm').disabled = !controlTextField.value;
+    });
+
+    document.getElementById('load').onclick = () => uploadAndLoadModule();
 }
 
-export { loadModule, refreshKpmList, uploadAndLoadModule, handleFileUpload, uploadFile }
+export { loadModule, refreshKpmList, handleFileUpload, uploadFile }
