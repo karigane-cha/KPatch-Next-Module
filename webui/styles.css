@@ -132,7 +132,6 @@ body {
     margin-bottom: calc(80px + var(--bottom-inset));
     position: relative;
     box-sizing: border-box;
-    overflow: hidden;
     transition: margin-bottom 0.3s ease;
 }
 
@@ -150,7 +149,6 @@ body {
     width: 100%;
     height: 100%;
     z-index: 0;
-    overflow: hidden;
 }
 
 .page-content {
@@ -343,7 +341,7 @@ body {
     position: absolute;
     bottom: 0;
     left: 0;
-    padding: 16px;
+    padding-bottom: 16px;
     box-sizing: border-box;
     width: 100%;
     display: flex;
@@ -353,6 +351,7 @@ body {
 }
 
 md-fab {
+    margin-inline-end: calc(50% - 50vw + 16px);
     transform: scale(1);
     opacity: 1;
     transition: all 0.2s ease;
